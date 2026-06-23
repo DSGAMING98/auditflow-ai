@@ -1,29 +1,29 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+
+import { useUser, UserButton } from "@clerk/nextjs";
 import {
   AlertTriangle,
   BarChart3,
-  Building2,
-  Rocket,
-  Send,
-  ClipboardCheck,
-  Settings,
-  Users,
   Bell,
-  History,
-  User,
-  PlugZap,
-  FolderOpen,
-  Gauge,
-  ReceiptText,
+  Building2,
   Calculator,
   CheckCircle2,
+  ClipboardCheck,
   FileText,
+  FolderOpen,
+  Gauge,
+  History,
   LayoutDashboard,
+  PlugZap,
+  ReceiptText,
+  Rocket,
   Search,
+  Send,
+  Settings,
   ShieldCheck,
   UploadCloud,
+  User,
+  Users,
   WalletCards,
 } from "lucide-react";
 
@@ -100,47 +100,144 @@ const alerts = [
   "Tax amount mismatch detected in one invoice",
 ];
 
+const navItems = [
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    active: true,
+  },
+  {
+    label: "Upload Audit",
+    href: "/audit",
+    icon: UploadCloud,
+  },
+  {
+    label: "Batch Audit",
+    href: "/batch-audit",
+    icon: UploadCloud,
+  },
+  {
+    label: "Documents",
+    href: "/documents",
+    icon: FolderOpen,
+  },
+  {
+    label: "Reports",
+    href: "/reports",
+    icon: FileText,
+  },
+  {
+    label: "PDF Reports",
+    href: "/pdf-reports",
+    icon: ReceiptText,
+  },
+  {
+    label: "Review Queue",
+    href: "/review",
+    icon: ClipboardCheck,
+  },
+  {
+    label: "Approvals",
+    href: "/approvals",
+    icon: CheckCircle2,
+  },
+  {
+    label: "Rules",
+    href: "/rules",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Risk Scoring",
+    href: "/risk-scoring",
+    icon: Gauge,
+  },
+  {
+    label: "Vendors",
+    href: "/vendors",
+    icon: Building2,
+  },
+  {
+    label: "Analytics",
+    href: "/analytics",
+    icon: BarChart3,
+  },
+  {
+    label: "ROI Calculator",
+    href: "/roi",
+    icon: Calculator,
+  },
+  {
+    label: "Pilot Program",
+    href: "/pilot",
+    icon: Rocket,
+  },
+  {
+    label: "Pilot Request",
+    href: "/request",
+    icon: Send,
+  },
+  {
+    label: "Notifications",
+    href: "/notifications",
+    icon: Bell,
+  },
+  {
+    label: "Audit Trail",
+    href: "/audit-trail",
+    icon: History,
+  },
+  {
+    label: "Integrations",
+    href: "/integrations",
+    icon: PlugZap,
+  },
+  {
+    label: "Team Members",
+    href: "/team",
+    icon: Users,
+  },
+  {
+    label: "My Profile",
+    href: "/profile",
+    icon: User,
+  },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: Settings,
+  },
+];
+
 function getStatusClass(status: string) {
-  if (status === "Clean") return "bg-emerald-400/10 text-emerald-300";
-  if (status === "Warning") return "bg-yellow-400/10 text-yellow-300";
+  if (status === "Clean") {
+    return "bg-emerald-400/10 text-emerald-300";
+  }
+
+  if (status === "Warning") {
+    return "bg-yellow-400/10 text-yellow-300";
+  }
+
   return "bg-red-400/10 text-red-300";
 }
 
 export default function DashboardPage() {
-  const router = useRouter();
+  const { user, isLoaded } = useUser();
 
-  const [user, setUser] = useState<{
-  name: string;
-  email: string;
-  company: string;
-  role: string;
-  monthlyVolume: string;
-} | null>(null);
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem("auditflow-user");
-
-    if (!savedUser) {
-      router.push("/login");
-      return;
-    }
-
-    setUser(JSON.parse(savedUser));
-  }, [router]);
-
-  function logout() {
-    localStorage.removeItem("auditflow-user");
-    router.push("/login");
-  }
+  const displayName = user?.fullName || user?.firstName || "Finance User";
+  const displayEmail =
+    user?.primaryEmailAddress?.emailAddress || "No email found";
+  const companyName = "AuditFlow Workspace";
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="flex min-h-screen">
-        <aside className="hidden w-72 border-r border-white/10 bg-white/[0.03] p-6 lg:block">
+        <aside className="hidden max-h-screen w-72 overflow-y-auto border-r border-white/10 bg-white/[0.03] p-6 lg:block">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400 font-black text-slate-950">
               A
             </div>
+
             <div>
               <p className="text-lg font-black">AuditFlow AI</p>
               <p className="text-xs text-slate-400">Compliance Console</p>
@@ -148,212 +245,63 @@ export default function DashboardPage() {
           </div>
 
           <nav className="mt-10 space-y-2">
-            <a
-              href="/dashboard"
-              className="flex items-center gap-3 rounded-2xl bg-cyan-400/10 px-4 py-3 text-cyan-200"
-            >
-              <LayoutDashboard size={18} />
-              Dashboard
-            </a>
-            <a
-              href="/audit"
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
-            >
-              <UploadCloud size={18} />
-              Upload Audit
-            </a>
-            <a
-  href="/reports"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <FileText size={18} />
-  Reports
-</a>
+            {navItems.map((item) => {
+              const Icon = item.icon;
 
-<a
-  href="/pdf-reports"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <ReceiptText size={18} />
-  PDF Reports
-</a>
-
-<a
-  href="/rules"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <ShieldCheck size={18} />
-  Rules
-</a>
-
-<a
-  href="/vendors"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Building2 size={18} />
-  Vendors
-</a>
-
-<a
-  href="/analytics"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <BarChart3 size={18} />
-  Analytics
-</a>
-
-<a
-  href="/roi"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Calculator size={18} />
-  ROI Calculator
-</a>
-
-<a
-  href="/pilot"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Rocket size={18} />
-  Pilot Program
-</a>
-
-<a
-  href="/request"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Send size={18} />
-  Pilot Request
-</a>
-
-<a
-  href="/review"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <ClipboardCheck size={18} />
-  Review Queue
-</a>
-
-<a
-  href="/documents"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <FolderOpen size={18} />
-  Documents
-</a>
-
-<a
-  href="/settings"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Settings size={18} />
-  Settings
-</a>
-
-<a
-  href="/team"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Users size={18} />
-  Team Members
-</a>
-
-<a
-  href="/profile"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <User size={18} />
-  My Profile
-</a>
-
-<a
-  href="/integrations"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <PlugZap size={18} />
-  Integrations
-</a>
-
-<a
-  href="/audit-trail"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <History size={18} />
-  Audit Trail
-</a>
-
-<a
-  href="/notifications"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Bell size={18} />
-  Notifications
-</a>
-
-<a
-  href="/batch-audit"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <UploadCloud size={18} />
-  Batch Audit
-</a>
-
-<a
-  href="/approvals"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <CheckCircle2 size={18} />
-  Approvals
-</a>
-
-<a
-  href="/risk-scoring"
-  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
->
-  <Gauge size={18} />
-  Risk Scoring
-</a>
-            <a
-              href="/"
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white"
-            >
-              <ShieldCheck size={18} />
-              Landing Page
-            </a>
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 ${
+                    item.active
+                      ? "bg-cyan-400/10 text-cyan-200"
+                      : "text-slate-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <Icon size={18} />
+                  {item.label}
+                </a>
+              );
+            })}
           </nav>
         </aside>
 
         <section className="flex-1 p-6 lg:p-8">
-          <header className="flex flex-col justify-between gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl md:flex-row md:items-center">
+          <header className="flex flex-col justify-between gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl xl:flex-row xl:items-center">
             <div>
               <p className="text-sm text-cyan-300">
-  {user ? user.company : "Loading workspace..."}
-</p>
-<h1 className="mt-1 text-3xl font-black">
-  Invoice Audit Dashboard
-</h1>
-<p className="mt-2 text-sm text-slate-400">
-  {user ? `${user.name} · ${user.role} · ${user.email}` : "Preparing dashboard..."}
-</p>
+                {isLoaded ? companyName : "Loading workspace..."}
+              </p>
+
+              <h1 className="mt-1 text-3xl font-black">
+                Invoice Audit Dashboard
+              </h1>
+
+              <p className="mt-2 text-sm text-slate-400">
+                {isLoaded
+                  ? `${displayName} · Admin · ${displayEmail}`
+                  : "Preparing dashboard..."}
+              </p>
 
               <p className="mt-2 text-sm text-slate-400">
                 Monitor invoice risk, compliance issues, and duplicate billing.
               </p>
             </div>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3">
-              <Search size={18} className="text-slate-400" />
-              <input
-                placeholder="Search invoices..."
-                className="bg-transparent text-sm outline-none placeholder:text-slate-500"
-              />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3">
+                <Search size={18} className="text-slate-400" />
+
+                <input
+                  placeholder="Search invoices..."
+                  className="bg-transparent text-sm outline-none placeholder:text-slate-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                <UserButton />
+              </div>
             </div>
-            <button
-  onClick={logout}
-  className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-white hover:bg-white/10"
->
-  Logout
-</button>
           </header>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -369,10 +317,12 @@ export default function DashboardPage() {
                     <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
                       <Icon size={22} />
                     </div>
+
                     <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-300">
                       {stat.change}
                     </span>
                   </div>
+
                   <p className="mt-5 text-sm text-slate-400">{stat.title}</p>
                   <h2 className="mt-1 text-3xl font-black">{stat.value}</h2>
                 </div>
@@ -410,6 +360,7 @@ export default function DashboardPage() {
                       <th className="px-4">Status</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {invoices.map((invoice) => (
                       <tr
@@ -419,18 +370,23 @@ export default function DashboardPage() {
                         <td className="rounded-l-2xl px-4 py-4 font-bold">
                           {invoice.id}
                         </td>
+
                         <td className="px-4 py-4 text-slate-300">
                           {invoice.vendor}
                         </td>
+
                         <td className="px-4 py-4 text-slate-400">
                           {invoice.type}
                         </td>
+
                         <td className="px-4 py-4 font-bold">
                           {invoice.amount}
                         </td>
+
                         <td className="px-4 py-4 text-slate-400">
                           {invoice.date}
                         </td>
+
                         <td className="rounded-r-2xl px-4 py-4">
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-bold ${getStatusClass(
@@ -449,6 +405,7 @@ export default function DashboardPage() {
 
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
               <h2 className="text-xl font-black">AI Alerts</h2>
+
               <p className="mt-1 text-sm text-slate-400">
                 Important issues requiring review.
               </p>
@@ -461,10 +418,17 @@ export default function DashboardPage() {
                   >
                     <div className="flex gap-3">
                       {index === 0 ? (
-                        <AlertTriangle className="mt-1 text-red-300" size={18} />
+                        <AlertTriangle
+                          className="mt-1 text-red-300"
+                          size={18}
+                        />
                       ) : (
-                        <CheckCircle2 className="mt-1 text-cyan-300" size={18} />
+                        <CheckCircle2
+                          className="mt-1 text-cyan-300"
+                          size={18}
+                        />
                       )}
+
                       <p className="text-sm leading-6 text-slate-300">
                         {alert}
                       </p>
@@ -477,6 +441,7 @@ export default function DashboardPage() {
                 <p className="text-sm font-bold text-cyan-200">
                   AI Recommendation
                 </p>
+
                 <p className="mt-2 text-sm leading-6 text-slate-300">
                   Review high-risk invoices first. Missing tax identifiers and
                   repeated vendor patterns should be corrected before submission.
