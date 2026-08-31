@@ -5,8 +5,8 @@ export default function Page() {
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6">
       <div className="w-full max-w-md">
         <SignIn
-          fallbackRedirectUrl="/dashboard"
-          signUpFallbackRedirectUrl="/register"
+          signUpUrl="/register"
+          forceRedirectUrl="/dashboard"
         />
       </div>
     </main>
